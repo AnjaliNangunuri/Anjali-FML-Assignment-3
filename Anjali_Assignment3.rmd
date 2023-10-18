@@ -1,0 +1,116 @@
+---
+title: "Anjali Assignment-3"
+output:
+  pdf_document: default
+  html_document: default
+date: "2023-10-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+library(tidyverse)
+library(reshape)
+library(caret)
+library(e1071)
+
+UniB<- read_csv("C:/Users/Anjali/Desktop/Anjali FML Assignment 3/UniversalBank.csv")
+head(UniB)
+```
+
+```{r}
+colnames(UniB)
+UniB$Personal_Loan = as.factor(UniB$Personal_Loan)
+UniB$Online = as.factor(UniB$Online)
+UniB$CreditCard = as.factor(UniB$CreditCard)
+
+
+```
+
+```{r}
+set.seed(456)
+UniB_traindata <- sample(row.names(UniB), 0.6*dim(UniB)[1]) 
+UniB_validdata <- setdiff(row.names(UniB), UniB_traindata) 
+UniB_train <- UniB[UniB_traindata, ] 
+UniB_valid <- UniB[UniB_validdata, ] 
+train <- UniB[UniB_traindata,]
+valid <- UniB[UniB_traindata,] 
+```
+
+#a
+```{r}
+library(reshape2)
+melt = melt(train,id=c("CreditCard","Personal_Loan"),variable= "Online")
+cast = dcast(melt,CreditCard + Personal_Loan ~ Online)
+cast[,c(1,2,3,14)]
+
+```
+
+#b
+```{r}
+UniB.Loan.CC1 <- 89/3000
+UniB.Loan.CC1 
+```
+#c
+```{r}
+melt1 = melt(train,id=c("Personal_Loan"),variable = "Online")
+melt2 = melt(train,id=c("CreditCard"),variable = "Online")
+cast1 =dcast(melt1,`Personal_Loan`~Online)
+cast2=dcast(melt2,CreditCard~Online)
+UniB.Loanonline=cast1[,c(1,13)]
+UniB.LoanCC = cast2[,c(1,14)]
+UniB.Loanonline
+UniB.LoanCC
+```
+
+#d
+```{r}
+table(train[,c(14,10)])
+table(train[,c(13,10)]) 
+table(train[,c(10)]) 
+
+#1. P(CC = 1 | Loan = 1)
+UniB.CCUB.Loan1 = 89/(89+200) 
+UniB.CCUB.Loan1
+
+#2. P(Online=1|Loan=1)
+UniB.ONUB.Loan1 =177/(177+112) 
+UniB.ONUB.Loan1
+
+#3. P(Loan = 1)
+UniB.Loan1 =289/(289+2711)
+UniB.Loan1
+
+#4. P(CC=1|Loan=0)
+UniB.CCLoan.01= 794/(794+1917) 
+UniB.CCLoan.01
+
+#5. P(Online=1|Loan=0)
+UniB.ON1.L0= 1665/(1665+1046) 
+UniB.ON1.L0
+
+#6. P(Loan=0)
+UniB.Loan0= 2711/(2711+289) 
+UniB.Loan0
+
+```
+#e
+```{r}
+UniB_Naivebayes = ((89/(89+200))*(177/(177+112))*(289/(289+2711)))/(((89/(89+200))*(177/(177+112))*(289/(289+2711))))
+UniB_Naivebayes 
+
+```
+
+#f
+```{r}
+library(caret)
+library(e1071)
+UniB_nb_train = UniB_train[,c(10,13,14)] 
+UniB_naivebayes_1 = naiveBayes(`Personal_Loan`~.,data=UniB_nb_train) 
+UniB_naivebayes_1
+```
+
